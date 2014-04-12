@@ -1,0 +1,232 @@
+<!--
+  Als erstes definieren wir den Dokumenten-Typ
+-->
+<!DOCTYPE html>
+
+<!--
+  Anschließend beginnen wir mit dem Öffnen eines HTML-Tags.
+  Der Broswer erkennt daran, dass hier das HTML-Dokument beginnt.
+-->
+<html>
+
+  <!-- Der HEAD-Bereich dient den Metainformationen -->
+  <head>
+
+    <!--
+      Damit Umlaute richtig dargestellt werden,
+      teilen wir dem Browser den verwendeten Zeichensatz mit.
+    -->
+    <meta charset="utf-8" />
+
+    <!-- Nun  wird der Titel des Dokuments definiert. -->
+    <title>Rezepte-App</title>
+
+    <!--
+      Das Aussehen der Website wird durch CSS bestimmt.
+      Die CSS-Regeln werden entweder innerhalb eines Style-Tags
+      oder in einer externen Datei definiert.
+      Die Datei wird über einen Link mit dem Dokument verknüpft.
+    -->
+    <link href="style.css" rel="stylesheet"></link>
+
+  <!-- ende des HEAD-Bereiches -->
+  </head>
+
+  <!--
+    Im BODY-Bereich wird die eigentliche Dokumentenstruktur angegeben.
+  -->
+  <body>
+    <h1>Die Rezepte App</h1>
+    <div>
+      <div id="zutaten" class="panel">
+        <h2>Zutaten</h2>
+        <ul>
+        </ul>
+      </div>
+      <div id="rezepte" class="panel">
+        <h2>Rezepte</h2>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <!--
+      Nachdem der Browser die Struktur und das Aussehen (CSS) des Dokuments kennt,
+      spezifizieren wir nun das Verhalten der Seite durch JavaScript.
+    -->
+    <script>
+
+      // ---------------------- Daten -----------------------------/
+
+      // Liste mit Rezepten
+      var rezepte = [
+        {
+          name: "Griechischer Salat",
+          zutaten: ["Zwiebel", "Tomate", "Gurke", "Schafskäse"]
+        },
+        {
+          name: "Vegetarische Pizza",
+          zutaten: ["Zwiebel", "Tomate", "Käse", "Mehl"]
+        },
+        {
+          name: "Kässpätzle",
+          zutaten: ["Zwiebel", "Käse", "Ei", "Mehl"]
+        }
+      ]
+      // eine leere Liste für Zutaten
+      var zutatenliste = [];
+
+      // Liste der ausgewählten Zutaten
+      var aktiveZutaten = [];
+
+      // ---------------------- Verarbeitung ---------------------------/
+
+      // Zutatenliste füllen
+      var zutatenlisteFuellen = function(){
+        for(var i=0; i<rezepte.length;i++){
+          var r = rezepte[i];
+          for(var k=0; k<r.zutaten.length;k++){
+            var z = r.zutaten[k];
+            if (zutatenliste.indexOf(z)<0)
+              zutatenliste.push(z);
+          }
+        }
+      }
+
+      // ID für Zutat generieren
+      var zutatenId = function(z){
+        return "zutat-" + z;
+      };
+
+      // ID für Rezept generieren
+      var rezeptId  = function(zutaten){
+        return "rezept-" + zutaten.join('-');
+      };
+
+      var einfacherFilter = function(r){
+        if (aktiveZutaten.length === 0){
+          return true;
+        }
+        for(var i in aktiveZutaten){
+          var z = aktiveZutaten[i];
+          if (r.zutaten.indexOf(z) < 0){
+            return false;
+          }
+        }
+        return true;
+      };
+
+      var zutatenFiltern = function(filterFunktion){
+        var ergebnis = rezepte.filter(filterFunktion);
+        for(var i in rezepte){
+          var r   = rezepte[i];
+          var idx = ergebnis.indexOf(r);
+          var id  = rezeptId(r.zutaten);
+          if(idx < 0){
+            rezeptEinblenden(id, false);
+          } else {
+            rezeptEinblenden(id, true);
+          }
+        }
+      };
+
+      // Zutat hinzufügen / entfernen
+      var toggleZutat = function(zutat){
+
+        var index = aktiveZutaten.indexOf(zutat);
+
+        if(index < 0){
+          // Zutat der Liste hinzufügen
+          aktiveZutaten.push(zutat);
+          return true;
+        }
+        else {
+          // Zutat aus der Liste entfernen
+          aktiveZutaten.splice(index, 1);
+          return false;
+        }
+      };
+
+      // ---------------------- DOM Manipulation ------------------------/
+
+      var ul_z = document.querySelector("#zutaten ul");
+      var ul_r = document.querySelector("#rezepte ul");
+
+      // Alle zutaten anzeigen
+      var zutatenAnzeigen = function(){
+        for(var i=0; i<zutatenliste.length;i++){
+          var li = document.createElement("li");
+          var z  = zutatenliste[i];
+          li.innerText = z;
+          li.setAttribute("id", zutatenId(z));
+          ul_z.appendChild(li);
+        }
+      };
+
+      // Alle Rezepte anzeigen
+      var rezepteAnzeigen = function(){
+        for(var i in rezepte){
+          var r = rezepte[i];
+          var li = document.createElement("li");
+          li.innerHTML = "<div><h3>" + r.name + "</h3><p>"+ r.zutaten.join(', ')+ "</p></div>";
+          li.setAttribute("id", rezeptId(r.zutaten));
+          ul_r.appendChild(li);
+        }
+      };
+
+      var zutatMarkieren = function(id, ja){
+        var li = document.querySelector("#" + id);
+        if (!li){ return; }
+
+        if (ja) {
+          li.setAttribute("class", "aktiv");
+        } else {
+          li.removeAttribute("class", "aktiv");
+        }
+      };
+
+      var rezeptEinblenden = function(id, ja){
+        var li  = document.querySelector('#' + id);
+        if(ja){
+          li.style.display = '';
+        } else {
+          li.style.display = 'none';
+        }
+      };
+
+      var zutatenBeobachten = function(aktion){
+        ul_z.addEventListener("click",function(ev){
+          if (ev.target.nodeName == "LI"){
+            aktion(ev.target.innerText);
+          }
+        }, false);
+      };
+
+      var klickAktion = function(z){
+        console.log(z);
+        var aktiv = toggleZutat(z);
+        var id = zutatenId(z);
+        zutatMarkieren(id, aktiv);
+        zutatenFiltern(einfacherFilter);
+        console.log("aktive Zutaten:", aktiveZutaten);
+      };
+
+      // ---------------------- Programmablauf --------------------------/
+
+      zutatenlisteFuellen();
+      zutatenliste.sort();
+      zutatenAnzeigen();
+      rezepteAnzeigen();
+      zutatenBeobachten(klickAktion);
+
+    </script>
+    <!-- alternativ könnte der JavaScript-Code auch in externe Dateien ausgelagert werden,
+      z.B. wie folgt:
+      <script src="app.js"></script>
+      <script src="rezepte.js"></script>
+    -->
+
+  <!-- Ende des BODY-Bereichs -->
+  </body>
+
+<!-- Zum Schluß wird das Ende des HTM-Dokuments definiert. -->
+</html>
