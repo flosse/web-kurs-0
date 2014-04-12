@@ -90,7 +90,7 @@
               zutatenliste.push(z);
           }
         }
-      }
+      };
 
       // ID für Zutat generieren
       var zutatenId = function(z){
@@ -156,7 +156,7 @@
         for(var i=0; i<zutatenliste.length;i++){
           var li = document.createElement("li");
           var z  = zutatenliste[i];
-          li.innerText = z;
+          li.textContent = z;
           li.setAttribute("id", zutatenId(z));
           ul_z.appendChild(li);
         }
@@ -196,7 +196,7 @@
       var zutatenBeobachten = function(aktion){
         ul_z.addEventListener("click",function(ev){
           if (ev.target.nodeName == "LI"){
-            aktion(ev.target.innerText);
+            aktion(ev.target.textContent);
           }
         }, false);
       };
