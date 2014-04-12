@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gliederung</title>
+    <style>
+      html {
+        background: gray;
+        color: #444;
+        padding: 2em;
+        font-family: sans-serif;
+      }
+      div.slide {
+        background: white;
+        background: linear-gradient(180deg, #fff, #8bf);
+        padding: 3em;
+        border-radius: 1em;
+        box-shadow: 2px 2px 15px #333;
+      }
+      h1 {
+        font-size: 3em;
+        color: #007;
+        border-bottom: 3px dotted #800;
+        padding-bottom: 0.1em;
+        margin-top: 0;
+      }
+      ol {
+        margin-left: 2em;
+      }
+      li {
+        font-size: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <h1>Kurs-Gliederung</h1>
+      <ol>
+        <li>Einführung</li>
+        <li>Grundlagen</li>
+        <li>Beispiel-Applikation</li>
+      </ol>
+    </div>
+    <script>
+      var items   = document.getElementsByTagName("li");
+      var n       = items.length;
+      var current = 0;
+
+      var hide = function(){
+        for (i=0; i<n; i++){
+          var p = items[i];
+          p.style.display = "none";
+        }
+      };
+
+      var onSpaceEvent = function(ev){
+        if(ev.keyCode === 32 && current <= n){
+          if(current >= n){
+            hide();
+            current = 0;
+          }
+          else{
+            items[current].style.display = '';
+            current++;
+          }
+        }
+      };
+
+      window.addEventListener("keyup", onSpaceEvent);
+      hide();
+    </script>
+  </body>
+</html>
