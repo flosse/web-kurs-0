@@ -36,26 +36,41 @@
     Im BODY-Bereich wird die eigentliche Dokumentenstruktur angegeben.
   -->
   <body>
+
+    <!-- Überschrift erster Ordnung -->
     <h1>Die Rezepte App</h1>
+
     <div>
+
+      <!-- Ein Container für die Zutaten -->
       <div id="zutaten" class="panel">
+
+        <!-- Überschrift zweiter Ordnung -->
         <h2>Zutaten</h2>
-        <ul>
-        </ul>
+
+        <!-- leere Liste -->
+        <ul></ul>
+
       </div>
+
+      <!-- Ein Container für die Rezepte -->
       <div id="rezepte" class="panel">
+
+        <!-- Überschrift zweiter Ordnung -->
         <h2>Rezepte</h2>
-        <ul>
-        </ul>
+
+        <!-- leere Liste -->
+        <ul></ul>
+
       </div>
     </div>
     <!--
-      Nachdem der Browser die Struktur und das Aussehen (CSS) des Dokuments kennt,
-      spezifizieren wir nun das Verhalten der Seite durch JavaScript.
+      Nachdem der Browser die Struktur und das Aussehen (CSS) des Dokuments
+      kennt, spezifizieren wir nun das Verhalten der Seite durch JavaScript.
     -->
     <script>
 
-      // ---------------------- Daten -----------------------------/
+      // ------------------------------- Daten -------------------------------//
 
       // Liste mit Rezepten
       var rezepte = [
@@ -71,23 +86,36 @@
           name: "Kässpätzle",
           zutaten: ["Zwiebel", "Käse", "Ei", "Mehl"]
         }
-      ]
+      ];
+
       // eine leere Liste für Zutaten
       var zutatenliste = [];
 
       // Liste der ausgewählten Zutaten
       var aktiveZutaten = [];
 
-      // ---------------------- Verarbeitung ---------------------------/
+      // ----------------------------- Verarbeitung --------------------------//
 
       // Zutatenliste füllen
       var zutatenlisteFuellen = function(){
+
         for(var i=0; i<rezepte.length;i++){
+
+          // wähle das Rezept mit dem Index i aus der Liste der Rezepte
           var r = rezepte[i];
+
           for(var k=0; k<r.zutaten.length;k++){
+
+            // wähle die Zutat mit dem Index k aus der Liste der Zutaten des
+            // aktuell ausgewählten Rezepts r
             var z = r.zutaten[k];
-            if (zutatenliste.indexOf(z)<0)
+
+            // falls die Zutat z nicht in der Liste ist
+            if (zutatenliste.indexOf(z)<0){
+
+              // füge die Zutat z der Liste hinzu
               zutatenliste.push(z);
+            }
           }
         }
       };
@@ -103,11 +131,18 @@
       };
 
       var einfacherFilter = function(r){
+
+        // falls keine Zutat ausgewählt worden ist
         if (aktiveZutaten.length === 0){
           return true;
         }
+
         for(var i in aktiveZutaten){
+
+          // wähle die Zutat mit dem Index i aus der Liste der aktiven Zutaten
           var z = aktiveZutaten[i];
+
+          // falls die Zutat z nicht im Rezept r vorhanden ist
           if (r.zutaten.indexOf(z) < 0){
             return false;
           }
@@ -115,15 +150,23 @@
         return true;
       };
 
-      var zutatenFiltern = function(filterFunktion){
+      var rezepteFiltern = function(filterFunktion){
+
+        // filtere die Rezepte anhand der übergebenen Filterfunktion
         var ergebnis = rezepte.filter(filterFunktion);
+
         for(var i in rezepte){
-          var r   = rezepte[i];
-          var idx = ergebnis.indexOf(r);
-          var id  = rezeptId(r.zutaten);
-          if(idx < 0){
+
+          // wähle das Rezept mit dem Index i aus der Liste der Rezepte
+          var r = rezepte[i];
+
+          // generiere eine Rezepte-ID
+          var id = rezeptId(r.zutaten);
+
+          // falls das Rezept in der Ergebnisliste ist
+          if(ergebnis.indexOf(r) < 0){
             rezeptEinblenden(id, false);
-          } else {
+          } else { // ansonsten
             rezeptEinblenden(id, true);
           }
         }
@@ -132,86 +175,156 @@
       // Zutat hinzufügen / entfernen
       var toggleZutat = function(zutat){
 
+        // berechne den Index der Zutat aus der Liste der aktiven Zutaten
         var index = aktiveZutaten.indexOf(zutat);
 
+        // falls die Zutat nicht in der Liste vorhanden ist (index === -1)
         if(index < 0){
           // Zutat der Liste hinzufügen
           aktiveZutaten.push(zutat);
           return true;
         }
-        else {
+        else // ansonsten
+        {
           // Zutat aus der Liste entfernen
           aktiveZutaten.splice(index, 1);
           return false;
         }
       };
 
-      // ---------------------- DOM Manipulation ------------------------/
+      // -------------------------- DOM Manipulation -------------------------//
 
+      // <ul> Element im Container mit der ID 'zutaten' suchen
       var ul_z = document.querySelector("#zutaten ul");
+
+      // <ul> Element im Container mit der ID 'rezepte' suchen
       var ul_r = document.querySelector("#rezepte ul");
 
       // Alle zutaten anzeigen
       var zutatenAnzeigen = function(){
+
+        // für alle Zutaten in der Zutatenliste
         for(var i=0; i<zutatenliste.length;i++){
+
+          // wähle die Zutat mit dem Index i aus der Zutatenliste
+          var z = zutatenliste[i];
+
+          // ein neues Listenelement (<li>) erstellen
           var li = document.createElement("li");
-          var z  = zutatenliste[i];
+
+          // setze den Textinhalt der Listenelement mit der Zutat
           li.textContent = z;
+
+          // das ID-Attribut mit der entsprechenden Zutaten-ID setzen
           li.setAttribute("id", zutatenId(z));
+
+          // Listenelement der Zutatenliste hinzufügen
           ul_z.appendChild(li);
         }
       };
 
       // Alle Rezepte anzeigen
       var rezepteAnzeigen = function(){
+
+        // für alle Rezepte in der Rezepteliste
         for(var i in rezepte){
+
+          // wähle das Rezept mit dem Index i aus der Rezepteliste
           var r = rezepte[i];
+
+          // ein neues Listenelement (<li>) erstellen
           var li = document.createElement("li");
-          li.innerHTML = "<div><h3>" + r.name + "</h3><p>"+ r.zutaten.join(', ')+ "</p></div>";
+
+          // setze den HTML-Inhalt der Listenelements
+          li.innerHTML =
+            // Name des Rezeptes als Überschrift 3. Grades
+            "<h3>" + r.name + "</h3>" +
+            // zugehörige Zutaten in einem Paragraph-Element
+            "<p>" + r.zutaten.join(', ') + "</p>";
+
+          // das ID-Attribut mit der entsprechenden Rezepte-ID setzen
           li.setAttribute("id", rezeptId(r.zutaten));
+
+          // Listenelement der Rezepteliste hinzufügen
           ul_r.appendChild(li);
         }
       };
 
-      var zutatMarkieren = function(id, ja){
-        var li = document.querySelector("#" + id);
-        if (!li){ return; }
+      var zutatMarkieren = function(id, aktivieren){
 
-        if (ja) {
+        // Listenelement anhand der ID suchen
+        var li = document.querySelector("#" + id);
+
+        // falls kein Listenelement gefunden wurde
+        if (!li){
+          // beende die Funktion
+          return;
+        }
+
+        // falls die Zutat aktiviert werden soll
+        if (aktivieren) {
           li.setAttribute("class", "aktiv");
-        } else {
+        }
+        // ansonsten
+        else {
           li.removeAttribute("class", "aktiv");
         }
       };
 
       var rezeptEinblenden = function(id, ja){
-        var li  = document.querySelector('#' + id);
+
+        // suche das Listenelement anhand der ID
+        var li = document.querySelector('#' + id);
+
+        // falls das Rezept eingeblendet werden soll
         if(ja){
+          // entferne die CSS-Eigenschaft 'display'
           li.style.display = '';
-        } else {
+        }
+        else //ansonsten
+        {
+          // setze die CSS-Eigenschaft 'display' auf 'none',
+          // so dass das Listenelement (<li>) versteckt ist
           li.style.display = 'none';
         }
       };
 
       var zutatenBeobachten = function(aktion){
+
+        // reagiere auf Klick-Events mit der folgenden Funktion
         ul_z.addEventListener("click",function(ev){
+
+          // falls das angeklickte Element ein Listenelement (<li>) ist
           if (ev.target.nodeName == "LI"){
+
+            // führe die Aktion mit dem Namen der Zutat aus
             aktion(ev.target.textContent);
           }
         }, false);
       };
 
       var klickAktion = function(z){
-        console.log(z);
+
+        // modifiziere den Zustand der Zutat z
         var aktiv = toggleZutat(z);
+
+        // ID der Zutat generieren
         var id = zutatenId(z);
+
+        // Zutat in abhängigkeit von Zustand markieren bzw. demarkieren
         zutatMarkieren(id, aktiv);
-        zutatenFiltern(einfacherFilter);
-        console.log("aktive Zutaten:", aktiveZutaten);
+
+        // Rezepte mit einfacher Filterfunktion filtern
+        rezepteFiltern(einfacherFilter);
+
+        // aktuell ausgewählte Zutaten auf der Konsole ausgeben
+        console.log("Aktive Zutaten:", aktiveZutaten);
       };
 
-      // ---------------------- Programmablauf --------------------------/
+      // ------------------------ Programmablauf -----------------------------//
 
+      // Nachdem alle Funktionen definiert worden sind, können sie
+      // nacheinander aufgerufen werden.
       zutatenlisteFuellen();
       zutatenliste.sort();
       zutatenAnzeigen();
@@ -219,8 +332,8 @@
       zutatenBeobachten(klickAktion);
 
     </script>
-    <!-- alternativ könnte der JavaScript-Code auch in externe Dateien ausgelagert werden,
-      z.B. wie folgt:
+    <!-- alternativ könnte der JavaScript-Code auch in externe Dateien
+      ausgelagert werden, z.B. wie folgt:
       <script src="app.js"></script>
       <script src="rezepte.js"></script>
     -->
